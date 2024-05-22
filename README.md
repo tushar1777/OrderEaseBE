@@ -1,4 +1,4 @@
-# Zosh Food
+# OrderEase
 
 1. **User:**
     - ID (Auto-generated)
