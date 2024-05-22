@@ -95,7 +95,7 @@ public class AdminMenuItemControllerTest {
 
         // Assert
         assertEquals("Menu item deleted", response.getBody());
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
