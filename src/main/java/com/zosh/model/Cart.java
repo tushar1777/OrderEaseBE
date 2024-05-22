@@ -33,4 +33,7 @@ public class Cart {
 	
 	private Long total;
 
+	public void setUser(User user) {
+
+	}
 }

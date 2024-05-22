@@ -35,7 +35,9 @@ public class Review {
     private double rating;
 
     private LocalDateTime createdAt;
-    
-   
+
+
+    public Review(long l, int i, String s, LocalDateTime now) {
+    }
 }
 
