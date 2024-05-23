@@ -109,9 +109,4 @@ public class IngredientsServiceImplementation implements IngredientsService {
 		ingredient.setInStoke(!ingredient.isInStoke());
 		return ingredientsItemRepository.save(ingredient);
 	}
-
-	
-
-	
-
 }

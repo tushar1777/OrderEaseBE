@@ -28,7 +28,7 @@ public class RestaurantServiceImplementation implements RestaurantService {
 	
 	@Autowired
 	private UserRepository userRepository;
-	
+
 
 	@Override
 	public Restaurant createRestaurant(CreateRestaurantRequest req,User user) {

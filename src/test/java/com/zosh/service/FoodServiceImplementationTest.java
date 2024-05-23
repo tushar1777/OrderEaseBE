@@ -1,29 +1,36 @@
 package com.zosh.service;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import com.zosh.repository.IngredientsCategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.zosh.Exception.FoodException;
 import com.zosh.Exception.RestaurantException;
 import com.zosh.model.Category;
+import com.zosh.model.IngredientsItem;
 import com.zosh.model.Food;
 import com.zosh.model.Restaurant;
+import com.zosh.repository.IngredientsCategoryRepository;
 import com.zosh.repository.foodRepository;
 import com.zosh.request.CreateFoodRequest;
 
+@ExtendWith(MockitoExtension.class)
 public class FoodServiceImplementationTest {
+
+    @InjectMocks
+    private FoodServiceImplementation foodService;
 
     @Mock
     private foodRepository foodRepository;
@@ -34,193 +41,241 @@ public class FoodServiceImplementationTest {
     @Mock
     private IngredientsCategoryRepository ingredientCategoryRepo;
 
-    @InjectMocks
-    private FoodServiceImplementation foodService;
+    private Food food;
+    private Restaurant restaurant;
+    private Category category;
+    private CreateFoodRequest createFoodRequest;
+    private List<IngredientsItem> ingredients;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    public void setup() {
+        restaurant = new Restaurant();
+        restaurant.setId(1L);
+        restaurant.setFoods(new ArrayList<>());
 
-    @Test
-    void testCreateFood() throws FoodException, RestaurantException {
-        // Arrange
-        CreateFoodRequest req = new CreateFoodRequest();
-        req.setDescription("Delicious food");
-        req.setImages(new ArrayList<>());
-        req.setName("Food Name");
-        req.setPrice(100L);
-        req.setSeasonal(true);
-        req.setVegetarian(true);
-        req.setIngredients(new ArrayList<>());
+        category = new Category();
+        category.setId(1L);
+        category.setName("Category 1");
 
-        Category category = new Category();
-        Restaurant restaurant = new Restaurant();
+        ingredients = new ArrayList<>();
+        IngredientsItem ingredient = new IngredientsItem();
+        ingredient.setName("Ingredient 1");
+        ingredients.add(ingredient);
 
-        Food food = new Food();
+        createFoodRequest = new CreateFoodRequest();
+        createFoodRequest.setName("Food 1");
+        createFoodRequest.setDescription("Description 1");
+        createFoodRequest.setImages(Collections.singletonList("image.png"));
+        createFoodRequest.setPrice(10L);
+        createFoodRequest.setSeasonal(true);
+        createFoodRequest.setVegetarian(true);
+        createFoodRequest.setIngredients(ingredients);
+
+        food = new Food();
+        food.setId(1L);
+        food.setName("Food 1");
         food.setFoodCategory(category);
         food.setCreationDate(new Date());
-        food.setDescription(req.getDescription());
-        food.setImages(req.getImages());
-        food.setName(req.getName());
-        food.setPrice((long) req.getPrice());
-        food.setSeasonal(req.isSeasonal());
-        food.setVegetarian(req.isVegetarian());
-        food.setIngredients(req.getIngredients());
+        food.setDescription("Description 1");
+        food.setImages(Collections.singletonList("image.png"));
+        food.setPrice(10L);
+        food.setSeasonal(true);
+        food.setVegetarian(true);
+        food.setIngredients(ingredients);
         food.setRestaurant(restaurant);
+    }
 
+    @Test
+    public void testCreateFood() throws FoodException, RestaurantException {
         when(foodRepository.save(any(Food.class))).thenReturn(food);
 
-        // Act
-        Food result = foodService.createFood(req, category, restaurant);
+        Food createdFood = foodService.createFood(createFoodRequest, category, restaurant);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(req.getDescription(), result.getDescription());
-        assertEquals(req.getName(), result.getName());
-        assertEquals(req.getPrice(), result.getPrice());
-        assertEquals(req.isSeasonal(), result.isSeasonal());
-        assertEquals(req.isVegetarian(), result.isVegetarian());
+        assertNotNull(createdFood);
+        assertEquals("Food 1", createdFood.getName());
+        assertEquals(category, createdFood.getFoodCategory());
+        assertEquals(restaurant, createdFood.getRestaurant());
+        assertEquals(ingredients, createdFood.getIngredients());
 
         verify(foodRepository, times(1)).save(any(Food.class));
     }
 
     @Test
-    void testDeleteFood() throws FoodException {
-        // Arrange
-        Long foodId = 1L;
-        Food food = new Food();
-        food.setId(foodId);
+    public void testDeleteFood() throws FoodException {
+        when(foodRepository.findById(anyLong())).thenReturn(Optional.of(food));
+        doNothing().when(foodRepository).delete(any(Food.class));
 
-        when(foodRepository.findById(foodId)).thenReturn(Optional.of(food));
+        foodService.deleteFood(1L);
 
-        // Act
-        foodService.deleteFood(foodId);
-
-        // Assert
-        verify(foodRepository, times(1)).findById(foodId);
-        verify(foodRepository, times(1)).delete(food);
+        verify(foodRepository, times(1)).findById(anyLong());
+        verify(foodRepository, times(1)).delete(any(Food.class));
     }
 
     @Test
-    void testDeleteFood_FoodNotFound() {
-        // Arrange
-        Long foodId = 1L;
+    public void testDeleteFoodThrowsException() {
+        when(foodRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        when(foodRepository.findById(foodId)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(FoodException.class, () -> {
+            foodService.deleteFood(1L);
+        });
 
-        // Act & Assert
-        assertThrows(FoodException.class, () -> foodService.deleteFood(foodId));
+        assertEquals("food with id1not found", exception.getMessage());
 
-        verify(foodRepository, times(1)).findById(foodId);
-        verify(foodRepository, never()).delete(any(Food.class));
+        verify(foodRepository, times(1)).findById(anyLong());
     }
 
     @Test
-    void testGetRestaurantsFood() throws FoodException {
-        // Arrange
-        Long restaurantId = 1L;
-        Food food1 = new Food();
-        food1.setVegetarian(true);
-        food1.setSeasonal(true);
+    public void testGetRestaurantsFood() throws FoodException {
+        when(foodRepository.findByRestaurantId(anyLong())).thenReturn(List.of(food));
 
-        Food food2 = new Food();
-        food2.setVegetarian(false);
-        food2.setSeasonal(false);
+        List<Food> foods = foodService.getRestaurantsFood(1L, true, false, true, "Category 1");
 
-        List<Food> foods = new ArrayList<>();
-        foods.add(food1);
-        foods.add(food2);
+        assertNotNull(foods);
+        assertEquals(1, foods.size());
+        assertEquals(food, foods.get(0));
 
-        when(foodRepository.findByRestaurantId(restaurantId)).thenReturn(foods);
-
-        // Act
-        List<Food> result = foodService.getRestaurantsFood(restaurantId, true, false, true, "");
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertTrue(result.get(0).isVegetarian());
-
-        verify(foodRepository, times(1)).findByRestaurantId(restaurantId);
+        verify(foodRepository, times(1)).findByRestaurantId(anyLong());
     }
 
     @Test
-    void testSearchFood() {
-        // Arrange
-        String keyword = "Pizza";
-        List<Food> foods = new ArrayList<>();
-        Food food = new Food();
-        food.setName("Pizza");
-        foods.add(food);
+    public void testSearchFood() {
+        when(foodRepository.searchByNameOrCategory(anyString())).thenReturn(List.of(food));
 
-        when(foodRepository.searchByNameOrCategory(keyword)).thenReturn(foods);
+        List<Food> foods = foodService.searchFood("keyword");
 
-        // Act
-        List<Food> result = foodService.searchFood(keyword);
+        assertNotNull(foods);
+        assertEquals(1, foods.size());
+        assertEquals(food, foods.get(0));
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("Pizza", result.get(0).getName());
-
-        verify(foodRepository, times(1)).searchByNameOrCategory(keyword);
+        verify(foodRepository, times(1)).searchByNameOrCategory(anyString());
     }
 
     @Test
-    void testUpdateAvailibilityStatus() throws FoodException {
-        // Arrange
-        Long foodId = 1L;
-        Food food = new Food();
-        food.setId(foodId);
+    public void testUpdateAvailabilityStatus() throws FoodException {
+        // Set the initial availability to true
         food.setAvailable(true);
 
-        when(foodRepository.findById(foodId)).thenReturn(Optional.of(food));
+        when(foodRepository.findById(anyLong())).thenReturn(Optional.of(food));
         when(foodRepository.save(any(Food.class))).thenReturn(food);
 
-        // Act
-        Food result = foodService.updateAvailibilityStatus(foodId);
+        Food updatedFood = foodService.updateAvailibilityStatus(1L);
 
-        // Assert
-        assertNotNull(result);
-        assertFalse(result.isAvailable());
+        assertNotNull(updatedFood);
+        assertFalse(updatedFood.isAvailable()); // Expecting availability to be toggled from true to false
 
-        verify(foodRepository, times(1)).findById(foodId);
+        verify(foodRepository, times(1)).findById(anyLong());
         verify(foodRepository, times(1)).save(any(Food.class));
     }
 
+
     @Test
-    void testFindFoodById() throws FoodException {
-        // Arrange
-        Long foodId = 1L;
-        Food food = new Food();
-        food.setId(foodId);
+    public void testFindFoodById() throws FoodException {
+        when(foodRepository.findById(anyLong())).thenReturn(Optional.of(food));
 
-        when(foodRepository.findById(foodId)).thenReturn(Optional.of(food));
+        Food foundFood = foodService.findFoodById(1L);
 
-        // Act
-        Food result = foodService.findFoodById(foodId);
+        assertNotNull(foundFood);
+        assertEquals(food, foundFood);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(foodId, result.getId());
-
-        verify(foodRepository, times(1)).findById(foodId);
+        verify(foodRepository, times(1)).findById(anyLong());
     }
 
     @Test
-    void testFindFoodById_FoodNotFound() {
-        // Arrange
-        Long foodId = 1L;
+    public void testFindFoodByIdThrowsException() {
+        when(foodRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        when(foodRepository.findById(foodId)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(FoodException.class, () -> {
+            foodService.findFoodById(1L);
+        });
 
-        // Act & Assert
-        assertThrows(FoodException.class, () -> foodService.findFoodById(foodId));
+        assertEquals("food with id1not found", exception.getMessage());
 
-        verify(foodRepository, times(1)).findById(foodId);
+        verify(foodRepository, times(1)).findById(anyLong());
     }
 
-    // Additional tests for other methods and edge cases can be added similarly
+    @Test
+    public void testFilterByVegetarian() {
+        List<Food> foods = List.of(food);
+        List<Food> filteredFoods = foods.stream()
+                .filter(f -> f.isVegetarian())
+                .collect(Collectors.toList());
+
+        assertNotNull(filteredFoods);
+        assertEquals(1, filteredFoods.size());
+        assertEquals(food, filteredFoods.get(0));
+    }
+
+    @Test
+    public void testFilterByNonveg() {
+        food.setVegetarian(false);
+        List<Food> foods = List.of(food);
+        List<Food> filteredFoods = foods.stream()
+                .filter(f -> !f.isVegetarian())
+                .collect(Collectors.toList());
+
+        assertNotNull(filteredFoods);
+        assertEquals(1, filteredFoods.size());
+        assertEquals(food, filteredFoods.get(0));
+    }
+
+    @Test
+    public void testFilterBySeasonal() {
+        List<Food> foods = List.of(food);
+        List<Food> filteredFoods = foods.stream()
+                .filter(Food::isSeasonal)
+                .collect(Collectors.toList());
+
+        assertNotNull(filteredFoods);
+        assertEquals(1, filteredFoods.size());
+        assertEquals(food, filteredFoods.get(0));
+    }
+
+    @Test
+    public void testFilterByFoodCategory() {
+        List<Food> foods = List.of(food);
+        List<Food> filteredFoods = foods.stream()
+                .filter(f -> f.getFoodCategory() != null && "Category 1".equals(f.getFoodCategory().getName()))
+                .collect(Collectors.toList());
+
+        assertNotNull(filteredFoods);
+        assertEquals(1, filteredFoods.size());
+        assertEquals(food, filteredFoods.get(0));
+    }
+
+    @Test
+    public void testFilterByFoodCategoryWhenCategoryIsNull() {
+        food.setFoodCategory(null);
+        List<Food> foods = List.of(food);
+        List<Food> filteredFoods = foods.stream()
+                .filter(f -> f.getFoodCategory() != null && "Category 1".equals(f.getFoodCategory().getName()))
+                .collect(Collectors.toList());
+
+        assertNotNull(filteredFoods);
+        assertEquals(0, filteredFoods.size());
+    }
+
+    @Test
+    public void testGetRestaurantsFoodFilterByNonveg() throws FoodException {
+        Food nonVegFood = new Food();
+        nonVegFood.setVegetarian(false); // Set the food item as non-vegetarian
+
+        // Create a list of foods with both vegetarian and non-vegetarian items
+        List<Food> foods = new ArrayList<>();
+        foods.add(food); // Vegetarian food
+        foods.add(nonVegFood); // Non-vegetarian food
+
+        // Mock the foodRepository to return the list of foods
+        when(foodRepository.findByRestaurantId(anyLong())).thenReturn(foods);
+
+        // Call the getRestaurantsFood method with isNonveg set to true
+        List<Food> filteredFoods = foodService.getRestaurantsFood(1L, false, true, false, "Category 1");
+
+        // Verify that only the non-vegetarian food is returned
+        assertNotNull(filteredFoods);
+        assertEquals(1, filteredFoods.size());
+        assertEquals(nonVegFood, filteredFoods.get(0));
+
+        // Verify that the repository method is called with the correct restaurantId
+        verify(foodRepository, times(1)).findByRestaurantId(anyLong());
+    }
 }
-

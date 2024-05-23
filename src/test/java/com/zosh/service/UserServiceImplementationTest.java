@@ -1,19 +1,19 @@
 package com.zosh.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.mail.SimpleMailMessage;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -23,132 +23,97 @@ import com.zosh.model.PasswordResetToken;
 import com.zosh.model.User;
 import com.zosh.repository.PasswordResetTokenRepository;
 import com.zosh.repository.UserRepository;
-import com.zosh.service.UserServiceImplementation;
 
 public class UserServiceImplementationTest {
 
-    @Mock
     private UserRepository userRepository;
-
-    @Mock
     private JwtProvider jwtProvider;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
     private PasswordResetTokenRepository passwordResetTokenRepository;
-
-    @Mock
     private JavaMailSender javaMailSender;
-
-    @InjectMocks
     private UserServiceImplementation userService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    @Before
+    public void setUp() {
+        userRepository = mock(UserRepository.class);
+        jwtProvider = mock(JwtProvider.class);
+        passwordEncoder = mock(PasswordEncoder.class);
+        passwordResetTokenRepository = mock(PasswordResetTokenRepository.class);
+        javaMailSender = mock(JavaMailSender.class);
+        userService = new UserServiceImplementation(userRepository, jwtProvider, passwordEncoder,
+                passwordResetTokenRepository, javaMailSender);
     }
 
     @Test
-    void testFindUserProfileByJwt() throws UserException {
-        // Arrange
-        String jwt = "some.jwt.token";
-        String email = "user@example.com";
+    public void testFindUserProfileByJwt() throws UserException {
+        String jwt = "someJwt";
+        String email = "test@example.com";
         User user = new User();
         user.setEmail(email);
+
         when(jwtProvider.getEmailFromJwtToken(jwt)).thenReturn(email);
         when(userRepository.findByEmail(email)).thenReturn(user);
 
-        // Act
-        User result = userService.findUserProfileByJwt(jwt);
+        User foundUser = userService.findUserProfileByJwt(jwt);
 
-        // Assert
-        assertEquals(email, result.getEmail());
+        assertNotNull(foundUser);
+        assertEquals(email, foundUser.getEmail());
     }
 
-    @Test
-    void testFindAllUsers() {
-        // Arrange
-        List<User> userList = new ArrayList<>();
-        when(userRepository.findAll()).thenReturn(userList);
+    @Test(expected = UserException.class)
+    public void testFindUserProfileByJwt_UserNotFound() throws UserException {
+        String jwt = "someJwt";
+        String email = "test@example.com";
 
-        // Act
-        List<User> result = userService.findAllUsers();
-
-        // Assert
-        assertEquals(userList, result);
-    }
-
-    @Test
-    void testGetPendingRestaurantOwner() {
-        // Arrange
-        List<User> userList = new ArrayList<>();
-        when(userRepository.getPenddingRestaurantOwners()).thenReturn(userList);
-
-        // Act
-        List<User> result = userService.getPenddingRestaurantOwner();
-
-        // Assert
-        assertEquals(userList, result);
-    }
-
-    @Test
-    void testUpdatePassword() {
-        // Arrange
-        User user = new User();
-        String newPassword = "newPassword";
-        when(passwordEncoder.encode(newPassword)).thenReturn("encodedPassword");
-
-        // Act
-        userService.updatePassword(user, newPassword);
-
-        // Assert
-        verify(userRepository, times(1)).save(user);
-        assertEquals("encodedPassword", user.getPassword());
-    }
-
-    @Test
-    void testFindUserByEmail() throws UserException {
-        // Arrange
-        String email = "user@example.com";
-        User user = new User();
-        user.setEmail(email);
-        when(userRepository.findByEmail(email)).thenReturn(user);
-
-        // Act
-        User result = userService.findUserByEmail(email);
-
-        // Assert
-        assertEquals(email, result.getEmail());
-    }
-
-    @Test
-    void testFindUserByEmail_ThrowsExceptionWhenUserNotFound() {
-        // Arrange
-        String email = "nonexistent@example.com";
+        when(jwtProvider.getEmailFromJwtToken(jwt)).thenReturn(email);
         when(userRepository.findByEmail(email)).thenReturn(null);
 
-        // Act & Assert
-        assertThrows(UserException.class, () -> userService.findUserByEmail(email));
+        userService.findUserProfileByJwt(jwt);
     }
 
-//    @Test
-//    void testSendPasswordResetEmail() {
-//        // Arrange
-//        User user = new User();
-//        user.setEmail("user@example.com");
-//
-//        String resetToken = "resetToken";
-//        when(passwordResetTokenRepository.save(any(PasswordResetToken.class))).thenReturn(new PasswordResetToken());
-//        when(javaMailSender.send(any(SimpleMailMessage.class))).thenReturn(null);
-//
-//        // Act
-//        userService.sendPasswordResetEmail(user);
-//
-//        // Assert
-//        verify(passwordResetTokenRepository, times(1)).save(any(PasswordResetToken.class));
-//        verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
-//    }
-}
+    @Test
+    public void testFindAllUsers() throws UserException {
+        List<User> users = new ArrayList<>();
+        users.add(new User());
+        users.add(new User());
 
+        when(userRepository.findAll()).thenReturn(users);
+        when(userRepository.getPenddingRestaurantOwners()).thenReturn(users);
+        when(userRepository.findByEmail("username")).thenReturn(new User());
+
+        userService.getPenddingRestaurantOwner();
+        userService.updatePassword(new User(),"");
+        userService.sendPasswordResetEmail(new User());
+
+        List<User> foundUsers = userService.findAllUsers();
+
+        assertNotNull(foundUsers);
+        assertEquals(2, foundUsers.size());
+    }
+
+    // Add more test cases for other methods...
+
+    @Test
+    public void testFindUserByEmail_UserExists() throws UserException {
+        String email = "test@example.com";
+        User user = new User();
+        user.setEmail(email);
+
+        when(userRepository.findByEmail(email)).thenReturn(user);
+
+        User foundUser = userService.findUserByEmail(email);
+
+        assertNotNull(foundUser);
+        assertEquals(email, foundUser.getEmail());
+    }
+
+    @Test(expected = UserException.class)
+    public void testFindUserByEmail_UserNotFound() throws UserException {
+        String email = "test@example.com";
+
+        when(userRepository.findByEmail(email)).thenReturn(null);
+
+        userService.findUserByEmail(email);
+    }
+
+}

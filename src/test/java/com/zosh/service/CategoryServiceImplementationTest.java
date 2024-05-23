@@ -1,7 +1,9 @@
 package com.zosh.service;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,18 +11,21 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.zosh.Exception.RestaurantException;
 import com.zosh.model.Category;
 import com.zosh.model.Restaurant;
 import com.zosh.repository.CategoryRepository;
-import com.zosh.service.CategoryServiceImplementation;
-import com.zosh.service.RestaurantService;
 
+@ExtendWith(MockitoExtension.class)
 public class CategoryServiceImplementationTest {
+
+    @InjectMocks
+    private CategoryServiceImplementation categoryService;
 
     @Mock
     private RestaurantService restaurantService;
@@ -28,116 +33,71 @@ public class CategoryServiceImplementationTest {
     @Mock
     private CategoryRepository categoryRepository;
 
-    @InjectMocks
-    private CategoryServiceImplementation categoryService;
+    private Restaurant restaurant;
+    private Category category;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    public void setup() {
+        restaurant = new Restaurant();
+        restaurant.setId(1L);
+
+        category = new Category();
+        category.setId(1L);
+        category.setName("Beverages");
+        category.setRestaurant(restaurant);
     }
 
     @Test
-    void testCreateCategory() throws RestaurantException {
-        // Arrange
-        String name = "Italian";
-        Long userId = 1L;
+    public void testCreateCategory() throws RestaurantException {
+        when(restaurantService.getRestaurantsByUserId(anyLong())).thenReturn(restaurant);
+        when(categoryRepository.save(any(Category.class))).thenReturn(category);
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(1L);
+        Category createdCategory = categoryService.createCategory("Beverages", 1L);
 
-        Category category = new Category();
-        category.setId(1L);
-        category.setName(name);
-        category.setRestaurant(restaurant);
+        assertNotNull(createdCategory);
+        assertEquals("Beverages", createdCategory.getName());
+        assertEquals(restaurant, createdCategory.getRestaurant());
 
-        when(restaurantService.getRestaurantsByUserId(userId)).thenReturn(restaurant);
-        when(categoryRepository.save(any(Category.class))).thenAnswer(i -> i.getArguments()[0]);
-
-        // Act
-        Category result = categoryService.createCategory(name, userId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(name, result.getName());
-        assertEquals(restaurant, result.getRestaurant());
-
-        verify(restaurantService, times(1)).getRestaurantsByUserId(userId);
+        verify(restaurantService, times(1)).getRestaurantsByUserId(anyLong());
         verify(categoryRepository, times(1)).save(any(Category.class));
     }
 
     @Test
-    void testFindCategoryByRestaurantId() throws RestaurantException {
-        // Arrange
-        Long restaurantId = 1L;
+    public void testFindCategoryByRestaurantId() throws RestaurantException {
+        when(restaurantService.findRestaurantById(anyLong())).thenReturn(restaurant);
+        when(categoryRepository.findByRestaurantId(anyLong())).thenReturn(Arrays.asList(category));
 
-        Restaurant restaurant = new Restaurant();
-        restaurant.setId(restaurantId);
+        List<Category> categories = categoryService.findCategoryByRestaurantId(1L);
 
-        Category category1 = new Category();
-        category1.setId(1L);
-        category1.setName("Italian");
+        assertNotNull(categories);
+        assertEquals(1, categories.size());
+        assertEquals(category, categories.get(0));
 
-        Category category2 = new Category();
-        category2.setId(2L);
-        category2.setName("Mexican");
-
-        List<Category> categories = Arrays.asList(category1, category2);
-
-        when(restaurantService.findRestaurantById(restaurantId)).thenReturn(restaurant);
-        when(categoryRepository.findByRestaurantId(restaurantId)).thenReturn(categories);
-
-        // Act
-        List<Category> result = categoryService.findCategoryByRestaurantId(restaurantId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("Italian", result.get(0).getName());
-        assertEquals("Mexican", result.get(1).getName());
-
-        verify(restaurantService, times(1)).findRestaurantById(restaurantId);
-        verify(categoryRepository, times(1)).findByRestaurantId(restaurantId);
+        verify(restaurantService, times(1)).findRestaurantById(anyLong());
+        verify(categoryRepository, times(1)).findByRestaurantId(anyLong());
     }
 
     @Test
-    void testFindCategoryById() throws RestaurantException {
-        // Arrange
-        Long categoryId = 1L;
+    public void testFindCategoryById() throws RestaurantException {
+        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
 
-        Category category = new Category();
-        category.setId(categoryId);
-        category.setName("Italian");
+        Category foundCategory = categoryService.findCategoryById(1L);
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+        assertNotNull(foundCategory);
+        assertEquals(category, foundCategory);
 
-        // Act
-        Category result = categoryService.findCategoryById(categoryId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(categoryId, result.getId());
-        assertEquals("Italian", result.getName());
-
-        verify(categoryRepository, times(1)).findById(categoryId);
+        verify(categoryRepository, times(1)).findById(anyLong());
     }
 
     @Test
-    void testFindCategoryById_CategoryNotFound() {
-        // Arrange
-        Long categoryId = 1L;
+    public void testFindCategoryByIdThrowsException() {
+        when(categoryRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
-
-        // Act & Assert
         RestaurantException exception = assertThrows(RestaurantException.class, () -> {
-            categoryService.findCategoryById(categoryId);
+            categoryService.findCategoryById(1L);
         });
 
-        assertEquals("category not exist with id " + categoryId, exception.getMessage());
-
-        verify(categoryRepository, times(1)).findById(categoryId);
+        assertEquals("category not exist with id 1", exception.getMessage());
+        verify(categoryRepository, times(1)).findById(anyLong());
     }
-
-    // Additional tests for other methods and edge cases can be added similarly
 }
-

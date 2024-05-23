@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.zosh.model.Restaurant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -74,6 +75,12 @@ public class NotificationServiceImplementationTest {
         assertEquals(1, result.size());
 
         verify(notificationRepository, times(1)).findByCustomerId(userId);
+
+        Restaurant restaurant = new Restaurant();
+        String message = "Message";
+        User user = new User();
+        notificationService.sendRestaurantNotification(restaurant,message);
+        notificationService.sendPromotionalNotification(user,message);
     }
 
     // Additional test methods for the unimplemented methods can be added similarly

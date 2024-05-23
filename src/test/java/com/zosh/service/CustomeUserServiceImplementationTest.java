@@ -1,116 +1,90 @@
 package com.zosh.service;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.zosh.domain.USER_ROLE;
 import com.zosh.model.User;
 import com.zosh.repository.UserRepository;
-import com.zosh.service.CustomeUserServiceImplementation;
 
+@ExtendWith(MockitoExtension.class)
 public class CustomeUserServiceImplementationTest {
-
-    @Mock
-    private UserRepository userRepository;
 
     @InjectMocks
     private CustomeUserServiceImplementation userService;
 
+    @Mock
+    private UserRepository userRepository;
+
+    private User user;
+
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    public void setup() {
+        user = new User();
+        user.setEmail("test@example.com");
+        user.setPassword("password");
+        user.setRole(USER_ROLE.ROLE_CUSTOMER);
     }
 
     @Test
-    void testLoadUserByUsername_UserExists() {
-        // Arrange
-        String email = "user@example.com";
-        String password = "password";
+    public void testLoadUserByUsernameUserFound() {
+        when(userRepository.findByEmail(anyString())).thenReturn(user);
 
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setRole(USER_ROLE.ROLE_ADMIN);
+        UserDetails userDetails = userService.loadUserByUsername("test@example.com");
 
-        when(userRepository.findByEmail(email)).thenReturn(user);
-
-        // Act
-        UserDetails userDetails = userService.loadUserByUsername(email);
-
-        // Assert
         assertNotNull(userDetails);
-        assertEquals(email, userDetails.getUsername());
-        assertEquals(password, userDetails.getPassword());
+        assertEquals(user.getEmail(), userDetails.getUsername());
+        assertEquals(user.getPassword(), userDetails.getPassword());
 
-        List<GrantedAuthority> expectedAuthorities = new ArrayList<>();
-        expectedAuthorities.add(new SimpleGrantedAuthority(USER_ROLE.ROLE_ADMIN.toString()));
+        List<GrantedAuthority> authorities = new ArrayList<>(userDetails.getAuthorities());
+        assertEquals(1, authorities.size());
+        assertEquals("ROLE_CUSTOMER", authorities.get(0).getAuthority());
 
-        assertEquals(expectedAuthorities.size(), userDetails.getAuthorities().size());
-        assertTrue(userDetails.getAuthorities().containsAll(expectedAuthorities));
-
-        verify(userRepository, times(1)).findByEmail(email);
+        verify(userRepository, times(1)).findByEmail(anyString());
     }
 
     @Test
-    void testLoadUserByUsername_UserDoesNotExist() {
-        // Arrange
-        String email = "user@example.com";
+    public void testLoadUserByUsernameUserNotFound() {
+        when(userRepository.findByEmail(anyString())).thenReturn(null);
 
-        when(userRepository.findByEmail(email)).thenReturn(null);
-
-        // Act & Assert
         UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> {
-            userService.loadUserByUsername(email);
+            userService.loadUserByUsername("test@example.com");
         });
 
-        assertEquals("user not found with email  - " + email, exception.getMessage());
+        assertEquals("user not found with email  - test@example.com", exception.getMessage());
 
-        verify(userRepository, times(1)).findByEmail(email);
+        verify(userRepository, times(1)).findByEmail(anyString());
     }
 
     @Test
-    void testLoadUserByUsername_UserHasNoRole() {
-        // Arrange
-        String email = "user@example.com";
-        String password = "password";
+    public void testLoadUserByUsernameUserRoleNull() {
+        user.setRole(null);
+        when(userRepository.findByEmail(anyString())).thenReturn(user);
 
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setRole(null); // User has no role
+        UserDetails userDetails = userService.loadUserByUsername("test@example.com");
 
-        when(userRepository.findByEmail(email)).thenReturn(user);
-
-        // Act
-        UserDetails userDetails = userService.loadUserByUsername(email);
-
-        // Assert
         assertNotNull(userDetails);
-        assertEquals(email, userDetails.getUsername());
-        assertEquals(password, userDetails.getPassword());
+        assertEquals(user.getEmail(), userDetails.getUsername());
+        assertEquals(user.getPassword(), userDetails.getPassword());
 
-        List<GrantedAuthority> expectedAuthorities = new ArrayList<>();
-        expectedAuthorities.add(new SimpleGrantedAuthority(USER_ROLE.ROLE_CUSTOMER.toString())); // Default role
+        List<GrantedAuthority> authorities = new ArrayList<>(userDetails.getAuthorities());
+        assertEquals(1, authorities.size());
+        assertEquals("ROLE_CUSTOMER", authorities.get(0).getAuthority());
 
-        assertEquals(expectedAuthorities.size(), userDetails.getAuthorities().size());
-        assertTrue(userDetails.getAuthorities().containsAll(expectedAuthorities));
-
-        verify(userRepository, times(1)).findByEmail(email);
+        verify(userRepository, times(1)).findByEmail(anyString());
     }
-
-    // Additional tests for other edge cases can be added similarly
 }
-

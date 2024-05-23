@@ -1,62 +1,47 @@
 package com.zosh.service;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import com.zosh.service.PasswordResetTokenServiceImplementation;
+import org.junit.Before;
+import org.junit.Test;
 
 import com.zosh.model.PasswordResetToken;
 import com.zosh.repository.PasswordResetTokenRepository;
 
 public class PasswordResetTokenServiceImplementationTest {
 
-    @Mock
+    private PasswordResetTokenServiceImplementation passwordResetTokenService;
     private PasswordResetTokenRepository passwordResetTokenRepository;
 
-    @InjectMocks
-    private PasswordResetTokenServiceImplementation passwordResetTokenService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    @Before
+    public void setUp() {
+        passwordResetTokenRepository = mock(PasswordResetTokenRepository.class);
+        passwordResetTokenService = new PasswordResetTokenServiceImplementation(passwordResetTokenRepository);
     }
 
     @Test
-    void testFindByToken() {
-        // Arrange
-        String token = "testToken";
+    public void testFindByToken() {
+        String token = "someToken";
         PasswordResetToken passwordResetToken = new PasswordResetToken();
         passwordResetToken.setToken(token);
 
         when(passwordResetTokenRepository.findByToken(token)).thenReturn(passwordResetToken);
 
-        // Act
-        PasswordResetToken result = passwordResetTokenService.findByToken(token);
+        PasswordResetToken foundToken = passwordResetTokenService.findByToken(token);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals(token, result.getToken());
-
-        verify(passwordResetTokenRepository, times(1)).findByToken(token);
+        assertEquals(token, foundToken.getToken());
     }
 
     @Test
-    void testDelete() {
-        // Arrange
-        PasswordResetToken passwordResetToken = new PasswordResetToken();
-        passwordResetToken.setToken("testToken");
+    public void testDelete() {
+        PasswordResetToken resetToken = new PasswordResetToken();
 
-        doNothing().when(passwordResetTokenRepository).delete(passwordResetToken);
+        passwordResetTokenService.delete(resetToken);
 
-        // Act
-        passwordResetTokenService.delete(passwordResetToken);
-
-        // Assert
-        verify(passwordResetTokenRepository, times(1)).delete(passwordResetToken);
+        verify(passwordResetTokenRepository).delete(resetToken);
     }
 }
-
