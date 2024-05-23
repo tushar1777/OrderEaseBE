@@ -10,9 +10,6 @@ public class PasswordResetTokenServiceImplementation implements PasswordResetTok
 	@Autowired
 	private PasswordResetTokenRepository passwordResetTokenRepository;
 
-	public PasswordResetTokenServiceImplementation(PasswordResetTokenRepository passwordResetTokenRepository) {
-	}
-
 	@Override
 	public PasswordResetToken findByToken(String token) {
 		PasswordResetToken passwordResetToken =passwordResetTokenRepository.findByToken(token);
