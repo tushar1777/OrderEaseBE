@@ -1,18 +1,20 @@
 package com.zosh.service;
 
-import java.util.List;
-
 import com.zosh.model.Notification;
 import com.zosh.model.Order;
 import com.zosh.model.Restaurant;
 import com.zosh.model.User;
 
+import java.util.List;
+
 public interface NotificationService {
-	
-	public Notification sendOrderStatusNotification(Order order);
-	public void sendRestaurantNotification(Restaurant restaurant, String message);
-	public void sendPromotionalNotification(User user, String message);
-	
-	public List<Notification> findUsersNotification(Long userId);
+
+    Notification sendOrderStatusNotification(Order order);
+
+    void sendRestaurantNotification(Restaurant restaurant, String message);
+
+    void sendPromotionalNotification(User user, String message);
+
+    List<Notification> findUsersNotification(Long userId);
 
 }

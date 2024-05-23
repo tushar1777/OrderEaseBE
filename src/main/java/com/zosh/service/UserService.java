@@ -1,22 +1,22 @@
 package com.zosh.service;
 
-import java.util.List;
-
 import com.zosh.Exception.UserException;
 import com.zosh.model.User;
 
+import java.util.List;
+
 public interface UserService {
 
-	public User findUserProfileByJwt(String jwt) throws UserException;
-	
-	public User findUserByEmail(String email) throws UserException;
+    User findUserProfileByJwt(String jwt) throws UserException;
 
-	public List<User> findAllUsers();
+    User findUserByEmail(String email) throws UserException;
 
-	public List<User> getPenddingRestaurantOwner();
+    List<User> findAllUsers();
 
-	void updatePassword(User user, String newPassword);
+    List<User> getPenddingRestaurantOwner();
 
-	void sendPasswordResetEmail(User user);
+    void updatePassword(User user, String newPassword);
+
+    void sendPasswordResetEmail(User user);
 
 }

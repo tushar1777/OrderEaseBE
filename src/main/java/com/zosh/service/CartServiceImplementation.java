@@ -1,10 +1,5 @@
 package com.zosh.service;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.zosh.Exception.CartException;
 import com.zosh.Exception.CartItemException;
 import com.zosh.Exception.FoodException;
@@ -17,122 +12,124 @@ import com.zosh.repository.CartItemRepository;
 import com.zosh.repository.CartRepository;
 import com.zosh.repository.foodRepository;
 import com.zosh.request.AddCartItemRequest;
-import com.zosh.request.UpdateCartItemRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class CartServiceImplementation implements CartSerive {
-	@Autowired
-	private CartRepository cartRepository;
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private CartItemRepository cartItemRepository;
-	@Autowired
-	private foodRepository menuItemRepository;
+    @Autowired
+    private CartRepository cartRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private CartItemRepository cartItemRepository;
+    @Autowired
+    private foodRepository menuItemRepository;
 
-	@Override
-	public CartItem addItemToCart(AddCartItemRequest req, String jwt) throws UserException, FoodException, CartException, CartItemException {
+    @Override
+    public CartItem addItemToCart(AddCartItemRequest req, String jwt) throws UserException, FoodException, CartException, CartItemException {
 
-		User user = userService.findUserProfileByJwt(jwt);
-		
-		Optional<Food> menuItem=menuItemRepository.findById(req.getMenuItemId());
-		if(menuItem.isEmpty()) {
-			throw new FoodException("Menu Item not exist with id "+req.getMenuItemId());
-		}
+        User user = userService.findUserProfileByJwt(jwt);
 
-		Cart cart = findCartByUserId(user.getId());
+        Optional<Food> menuItem = menuItemRepository.findById(req.getMenuItemId());
+        if (menuItem.isEmpty()) {
+            throw new FoodException("Menu Item not exist with id " + req.getMenuItemId());
+        }
 
-		for (CartItem cartItem : cart.getItems()) {
-			if (cartItem.getFood().equals(menuItem.get())) {
+        Cart cart = findCartByUserId(user.getId());
 
-				int newQuantity = cartItem.getQuantity() + req.getQuantity();
-				return updateCartItemQuantity(cartItem.getId(),newQuantity);
-			}
-		}
+        for (CartItem cartItem : cart.getItems()) {
+            if (cartItem.getFood().equals(menuItem.get())) {
 
-		CartItem newCartItem = new CartItem();
-		newCartItem.setFood(menuItem.get());
-		newCartItem.setQuantity(req.getQuantity());
-		newCartItem.setCart(cart);
-		newCartItem.setIngredients(req.getIngredients());
-		newCartItem.setTotalPrice(req.getQuantity()*menuItem.get().getPrice());
-		
-		CartItem savedItem=cartItemRepository.save(newCartItem);
-		cart.getItems().add(savedItem);
-		cartRepository.save(cart);
-		
-		return savedItem;
+                int newQuantity = cartItem.getQuantity() + req.getQuantity();
+                return updateCartItemQuantity(cartItem.getId(), newQuantity);
+            }
+        }
 
-	}
+        CartItem newCartItem = new CartItem();
+        newCartItem.setFood(menuItem.get());
+        newCartItem.setQuantity(req.getQuantity());
+        newCartItem.setCart(cart);
+        newCartItem.setIngredients(req.getIngredients());
+        newCartItem.setTotalPrice(req.getQuantity() * menuItem.get().getPrice());
 
-	@Override
-	public CartItem updateCartItemQuantity(Long cartItemId,int quantity) throws CartItemException {
-		Optional<CartItem> cartItem=cartItemRepository.findById(cartItemId);
-		if(cartItem.isEmpty()) {
-			throw new CartItemException("cart item not exist with id "+cartItemId);
-		}
-		cartItem.get().setQuantity(quantity);
-		cartItem.get().setTotalPrice((cartItem.get().getFood().getPrice()*quantity));
-		return cartItemRepository.save(cartItem.get());
-	}
+        CartItem savedItem = cartItemRepository.save(newCartItem);
+        cart.getItems().add(savedItem);
+        cartRepository.save(cart);
 
-	@Override
-	public Cart removeItemFromCart(Long cartItemId, String jwt) throws UserException, 
-	CartException, CartItemException {
+        return savedItem;
 
-		User user = userService.findUserProfileByJwt(jwt);
+    }
 
-		Cart cart = findCartByUserId(user.getId());
-		
-		Optional<CartItem> cartItem=cartItemRepository.findById(cartItemId);
-		
-		if(cartItem.isEmpty()) {
-			throw new CartItemException("cart item not exist with id "+cartItemId);
-		}
+    @Override
+    public CartItem updateCartItemQuantity(Long cartItemId, int quantity) throws CartItemException {
+        Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
+        if (cartItem.isEmpty()) {
+            throw new CartItemException("cart item not exist with id " + cartItemId);
+        }
+        cartItem.get().setQuantity(quantity);
+        cartItem.get().setTotalPrice((cartItem.get().getFood().getPrice() * quantity));
+        return cartItemRepository.save(cartItem.get());
+    }
 
-		cart.getItems().remove(cartItem.get());
-		return cartRepository.save(cart);
-	}
+    @Override
+    public Cart removeItemFromCart(Long cartItemId, String jwt) throws UserException,
+            CartException, CartItemException {
 
-	@Override
-	public Long calculateCartTotals(Cart cart) throws UserException {
+        User user = userService.findUserProfileByJwt(jwt);
 
-		Long total = 0L;
-		for (CartItem cartItem : cart.getItems()) {
-			total += cartItem.getFood().getPrice() * cartItem.getQuantity();
-		}
-		return total;
-	}
+        Cart cart = findCartByUserId(user.getId());
 
-	@Override
-	public Cart findCartById(Long id) throws CartException {
-		Optional<Cart> cart = cartRepository.findById(id);
-		if(cart.isPresent()) {
-			return cart.get();
-		}
-		throw new CartException("Cart not found with the id "+id);
-	}
+        Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
 
-	@Override
-	public Cart findCartByUserId(Long userId) throws CartException, UserException {
-	
-		Optional<Cart> opt=cartRepository.findByCustomer_Id(userId);
-		
-		if(opt.isPresent()) {
-			return opt.get();
-		}
-		throw new CartException("cart not found");
-		
-	}
+        if (cartItem.isEmpty()) {
+            throw new CartItemException("cart item not exist with id " + cartItemId);
+        }
 
-	@Override
-	public Cart clearCart(Long userId) throws CartException, UserException {
-		Cart cart=findCartByUserId(userId);
-		
-		cart.getItems().clear();
-		return cartRepository.save(cart);
-	}
+        cart.getItems().remove(cartItem.get());
+        return cartRepository.save(cart);
+    }
 
-	
+    @Override
+    public Long calculateCartTotals(Cart cart) throws UserException {
+
+        Long total = 0L;
+        for (CartItem cartItem : cart.getItems()) {
+            total += cartItem.getFood().getPrice() * cartItem.getQuantity();
+        }
+        return total;
+    }
+
+    @Override
+    public Cart findCartById(Long id) throws CartException {
+        Optional<Cart> cart = cartRepository.findById(id);
+        if (cart.isPresent()) {
+            return cart.get();
+        }
+        throw new CartException("Cart not found with the id " + id);
+    }
+
+    @Override
+    public Cart findCartByUserId(Long userId) throws CartException, UserException {
+
+        Optional<Cart> opt = cartRepository.findByCustomer_Id(userId);
+
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+        throw new CartException("cart not found");
+
+    }
+
+    @Override
+    public Cart clearCart(Long userId) throws CartException, UserException {
+        Cart cart = findCartByUserId(userId);
+
+        cart.getItems().clear();
+        return cartRepository.save(cart);
+    }
+
 
 }

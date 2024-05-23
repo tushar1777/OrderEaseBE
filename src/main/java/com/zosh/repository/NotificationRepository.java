@@ -1,14 +1,14 @@
 package com.zosh.repository;
 
-import java.util.List;
-
+import com.zosh.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.zosh.model.Notification;
+import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-	public List<Notification> findByCustomerId(Long userId);
-	public List<Notification> findByRestaurantId(Long restaurantId);
+    List<Notification> findByCustomerId(Long userId);
+
+    List<Notification> findByRestaurantId(Long restaurantId);
 
 }
