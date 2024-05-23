@@ -37,7 +37,7 @@ public class Review {
     private LocalDateTime createdAt;
 
 
-    public Review(long l, int i, String s, LocalDateTime now) {
+    public Review(long l, double i, String s, LocalDateTime now) {
     }
 }
 

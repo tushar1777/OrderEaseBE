@@ -137,6 +137,35 @@ public class IngredientsServiceImplementationTest {
     }
 
     @Test
+    public void testIngredientItemExists() throws Exception {
+        Long restaurantId = 1L;
+        String ingredientName = "Tomato";
+        Long ingredientCategoryId = 1L;
+
+        IngredientCategory category = new IngredientCategory();
+        category.setId(ingredientCategoryId);
+        category.setName("Vegetables");
+
+        Restaurant restaurant = new Restaurant();
+        restaurant.setId(restaurantId);
+
+        IngredientsItem ingredientItem = new IngredientsItem();
+        ingredientItem.setName(ingredientName);
+        ingredientItem.setCategory(category);
+        ingredientItem.setRestaurant(restaurant);
+
+        when(ingredientsItemRepository.findByRestaurantIdAndNameIngoreCase(restaurantId, ingredientName, category.getName())).thenReturn(ingredientItem);
+        when(ingredientsCategoryRepo.findById(any())).thenReturn(Optional.of(category));
+        when(ingredientsCategoryRepo.findByRestaurantIdAndNameIgnoreCase(restaurantId,category.getName())).thenReturn(category);
+
+        IngredientsItem result = ingredientsService.createIngredientsItem(restaurantId, ingredientName, ingredientCategoryId);
+        IngredientCategory result1 = ingredientsService.createIngredientsCategory(category.getName(), restaurantId);
+
+        assertEquals(ingredientName, result.getName());
+        assertEquals(category.getName(), result1.getName());
+    }
+
+    @Test
     void testCreateIngredientsItem() throws Exception {
         // Arrange
         Long restaurantId = 1L;

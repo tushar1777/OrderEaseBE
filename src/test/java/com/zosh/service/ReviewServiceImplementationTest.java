@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -80,17 +81,45 @@ public class ReviewServiceImplementationTest {
     }
 
     @Test
+    public void testReviewIdAbsent(){
+        Long reviewId = 1L;
+        when(reviewRepository.findById(reviewId)).thenReturn(Optional.empty());
+        ReviewException exception = Assertions.assertThrows(ReviewException.class, () -> {
+            reviewService.deleteReview(reviewId);
+        });
+
+        Assertions.assertEquals("Review with ID " + reviewId + " not found", exception.getMessage());
+
+        // Verify that deleteById is never called
+        verify(reviewRepository, times(0)).deleteById(reviewId);
+
+    }
+
+    @Test
     void testCalculateAverageRating() {
         // Arrange
         List<Review> reviews = new ArrayList<>();
-        reviews.add(new Review(1L, 5, "Great!", LocalDateTime.now()));
-        reviews.add(new Review(2L, 3, "Average", LocalDateTime.now()));
+        Review review1 = new Review();
+        review1.setRating(5);
+        Review review2 = new Review();
+        review2.setRating(3);
+        reviews.add(review1);
+        reviews.add(review2);
 
         // Act
         double averageRating = reviewService.calculateAverageRating(reviews);
 
         // Assert
         assertEquals(4, averageRating);
+    }
+
+    @Test
+    public void testCalculateAverageRating_EmptyList() {
+        List<Review> reviews = new ArrayList<>();
+
+        double averageRating = reviewService.calculateAverageRating(reviews);
+
+        assertEquals(0, averageRating);
     }
 }
 
