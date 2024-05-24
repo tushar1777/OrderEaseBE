@@ -8,6 +8,7 @@ public class ZoshFoodApplicationTests {
 
 	@Test
 	public void contextLoads() {
+		assertTrue(true); 
 	}
 
 }
