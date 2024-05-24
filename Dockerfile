@@ -1,13 +1,18 @@
-FROM tomcat:9.0
+# Start with a base image containing Java runtime
+FROM openjdk:17-jdk-alpine
 
-# Copy the WAR file to the webapps directory of Tomcat
-COPY target/devops-integration.war /usr/local/tomcat/webapps/
+# Set the working directory
+WORKDIR /app
 
 # Expose the port your application runs on
 EXPOSE 5454
 
-# Run Tomcat
-CMD ["catalina.sh", "run"]
+# Copy the jar file from the target directory into the container
+COPY target/devops-integration.jar /app/app.jar
+
+# Run the jar file
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
 
 # FROM openjdk:17-slim
 # # Expose ports for both application 
