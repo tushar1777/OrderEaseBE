@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        git branch: 'main', url: 'https://github.com/tushar1777/OrderEaseBE.git'
+        git branch: 'dockerhub', url: 'https://github.com/tushar1777/OrderEaseBE.git'
       }
     }
 
@@ -37,7 +37,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         script {
-          sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
+          sh "docker login -u shoib -p 'a-?.3XpaU!G8P6'"
           sh "docker build -t shoib/devops-integration ."
           sh "docker push shoib/devops-integration"
         }
