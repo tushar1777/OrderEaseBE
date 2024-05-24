@@ -12,7 +12,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        git branch: 'main', url: 'https://github.com/tushar1777/OrderEaseBE.git'
+        git branch: 'setjenkinsfile', url: 'https://github.com/tushar1777/OrderEaseBE.git'
       }
     }
 
