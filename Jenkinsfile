@@ -16,8 +16,10 @@ pipeline {
       }
     }
 
-    stage('Build and Print Java Version') {
+    stage('Clean Install Test and Build') {
       steps {
+        sh 'mvn clean install'
+        sh 'mvn test'
         sh 'mvn clean package'
       }
     }
@@ -27,7 +29,7 @@ pipeline {
             scannerHome = tool 'SonarQubeScanner'
         }
         steps {
-            withSonarQubeEnv('sq1') { // This should match the SonarQube installation name in Jenkins
+            withSonarQubeEnv('sq1') {
                 sh 'mvn sonar:sonar'
             }
         }
