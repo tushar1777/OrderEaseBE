@@ -1,6 +1,9 @@
 pipeline {
   agent any
     environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-login')
+        DB_USERNAME = credentials('DB_USERNAME')
+        DB_PASSWORD = credentials('DB_PASSWORD')
         SONARQUBE_URL = 'http://54.197.189.182:8090/'
         SONARQUBE_SCANNER = 'sq1'
         SONARQUBE_CREDENTIALS = 'jenkins-sonar'
@@ -13,10 +16,8 @@ pipeline {
       }
     }
 
-    stage('Clean Install Test and Build') {
+    stage('Build and Print Java Version') {
       steps {
-        sh 'mvn clean install'
-        sh 'mvn test'
         sh 'mvn clean package'
       }
     }
@@ -26,9 +27,9 @@ pipeline {
             scannerHome = tool 'SonarQubeScanner'
         }
         steps {
-          withSonarQubeEnv('sq1') {
-            sh 'mvn sonar:sonar'
-          }
+            withSonarQubeEnv('sq1') { // This should match the SonarQube installation name in Jenkins
+                sh 'mvn sonar:sonar'
+            }
         }
     }
 
@@ -38,13 +39,8 @@ pipeline {
             sh "docker login  -u shoib -p '&a-?.3XpaU!G8P6'"
             sh "docker build -t shoib/devops-integration ."
             sh "docker push shoib/devops-integration"
+          }
         }
-      }
     }
   }
-  post {
-      always {
-            cleanWs()
-        }
-    }
 }
