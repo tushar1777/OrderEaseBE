@@ -1,10 +1,6 @@
 # Start with a base image containing Java runtime
 FROM openjdk:17-jdk-alpine
 
-# Set environment variables
-ENV DB_USERNAME=avnadmin
-ENV DB_PASSWORD=AVNS_BR5Y0Zti5uXS7fpxBB7
-
 # Set the working directory
 WORKDIR /app
 
