@@ -12,7 +12,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        git branch: 'sonarconfig', url: 'https://github.com/tushar1777/OrderEaseBE.git'
+        git branch: 'main', url: 'https://github.com/tushar1777/OrderEaseBE.git'
       }
     }
 
@@ -45,7 +45,7 @@ pipeline {
   }
   post {
         always {
-            cleanWs() // Clean up workspace after every build
+            cleanWs() 
         }
     }
 }
