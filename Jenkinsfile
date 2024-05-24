@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        git branch: 'main', url: 'https://github.com/tushar1777/OrderEaseBE.git'
+        git branch: 'jenkinsfile', url: 'https://github.com/tushar1777/OrderEaseBE.git'
       }
     }
 
@@ -37,9 +37,10 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         script {
-          sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
-          sh "docker build -t $DOCKERHUB_USERNAME/devops-integration ."
-          sh "docker push $DOCKERHUB_USERNAME/devops-integration"
+          sh('echo ${STATEMENT}')
+          sh('docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}')
+          sh('docker build -t ${DOCKERHUB_USERNAME}/devops-integration .')
+          sh('docker push ${DOCKERHUB_USERNAME}/devops-integration')
         }
       }
     }
