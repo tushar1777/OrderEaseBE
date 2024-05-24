@@ -28,7 +28,7 @@ pipeline {
         }
         steps {
             withSonarQubeEnv('sq1') { // This should match the SonarQube installation name in Jenkins
-                sh 'mvn sonar:sonar'
+                sh 'mvn clean verify sonar:sonar'
             }
         }
     }
@@ -43,4 +43,9 @@ pipeline {
       }
     }
   }
+  post {
+        always {
+            cleanWs() 
+        }
+    }
 }
