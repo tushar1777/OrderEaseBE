@@ -26,7 +26,7 @@ pipeline {
             scannerHome = tool 'SonarQubeScanner'
         }
         steps {
-          withSonarQubeEnv('sq1') { // This should match the SonarQube installation name in Jenkins
+          withSonarQubeEnv('sq1') {
             sh 'mvn sonar:sonar'
           }
         }
