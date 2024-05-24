@@ -35,12 +35,12 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        script {
-            sh "docker login  -u shoib -p '&a-?.3XpaU!G8P6'"
-            sh "docker build -t shoib/devops-integration ."
-            sh "docker push shoib/devops-integration"
-          }
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-login', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+          sh "docker login -u \$DOCKERHUB_USERNAME -p \$DOCKERHUB_PASSWORD"
+          sh "docker build -t shoib/devops-integration ."
+          sh "docker push shoib/devops-integration"
         }
+      }
     }
   }
 }
