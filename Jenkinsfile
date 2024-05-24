@@ -1,8 +1,6 @@
 pipeline {
   agent any
     environment {
-        DOCKERHUB_PASSWORD = credentials('dockerhub-password')
-        DOCKERHUB_USERNAME = credentials('dockerhub-username')
         SONARQUBE_URL = 'http://54.197.189.182:8090/'
         SONARQUBE_SCANNER = 'sq1'
         SONARQUBE_CREDENTIALS = 'jenkins-sonar'
