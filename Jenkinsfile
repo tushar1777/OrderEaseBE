@@ -38,11 +38,10 @@ pipeline {
       steps {
         script {
           withCredentials([usernamePassword(credentialsId: 'dockerhub-password', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-            echo "Docker password: $DOCKERHUB_PASSWORD"
-            sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
+            sh "docker login -u \$DOCKERHUB_USERNAME -p \$DOCKERHUB_PASSWORD"
+            sh "docker build -t shoib/devops-integration ."
+            sh "docker push shoib/devops-integration"
           }
-          sh "docker build -t shoib/devops-integration ."
-          sh "docker push shoib/devops-integration"
         }
       }
     }
