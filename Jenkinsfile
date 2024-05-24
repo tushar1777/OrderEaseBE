@@ -38,8 +38,8 @@ pipeline {
       steps {
         script {
           sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
-          sh "docker build -t $DOCKERHUB_USERNAME/devops-integration ."
-          sh "docker push $DOCKERHUB_USERNAME/devops-integration"
+          sh "docker build -t shoib/devops-integration ."
+          sh "docker push shoib/devops-integration"
         }
       }
     }
