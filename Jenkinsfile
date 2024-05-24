@@ -15,8 +15,10 @@ pipeline {
       }
     }
 
-    stage('Build and Print Java Version') {
+    stage('Clean Install Test and Build') {
       steps {
+        sh 'mvn clean install'
+        sh 'mvn test'
         sh 'mvn clean package'
       }
     }
@@ -42,4 +44,9 @@ pipeline {
       }
     }
   }
+  post {
+      always {
+            cleanWs()
+        }
+    }
 }
