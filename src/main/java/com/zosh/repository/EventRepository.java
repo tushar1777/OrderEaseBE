@@ -1,12 +1,11 @@
 package com.zosh.repository;
 
-import java.util.List;
-
+import com.zosh.model.Events;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.zosh.model.Events;
+import java.util.List;
 
-public interface EventRepository extends JpaRepository<Events, Long>{
+public interface EventRepository extends JpaRepository<Events, Long> {
 
-	public List<Events> findEventsByRestaurantId(Long id);
+    List<Events> findEventsByRestaurantId(Long id);
 }

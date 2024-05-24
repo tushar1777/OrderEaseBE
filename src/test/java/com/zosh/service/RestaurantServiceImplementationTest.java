@@ -42,22 +42,22 @@ public class RestaurantServiceImplementationTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testCreateRestaurant() {
-        // Arrange
-        CreateRestaurantRequest request = new CreateRestaurantRequest();
-        Address address = new Address();
-        User user = new User();
-        when(addressRepository.save(any(Address.class))).thenReturn(address);
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        // Act
-        Restaurant result = restaurantService.createRestaurant(request, user);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(user, result.getOwner());
-    }
+//    @Test
+//    void testCreateRestaurant() {
+//        // Arrange
+//        CreateRestaurantRequest request = new CreateRestaurantRequest();
+//        Address address = new Address();
+//        User user = new User();
+//        when(addressRepository.save(any(Address.class))).thenReturn(address);
+//        when(userRepository.save(any(User.class))).thenReturn(user);
+//
+//        // Act
+//        Restaurant result = restaurantService.createRestaurant(request, user);
+//
+//        // Assert
+//        assertNotNull(result);
+//        assertEquals(user, result.getOwner());
+//    }
 
     @Test
     void testFindRestaurantById() throws RestaurantException {

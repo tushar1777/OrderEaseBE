@@ -11,14 +11,15 @@ import com.zosh.model.IngredientsItem;
 
 public interface IngredientsItemRepository extends JpaRepository<IngredientsItem, Long> {
 
-	
-	List<IngredientsItem> findByRestaurantId(Long id);
-	@Query("SELECT e FROM IngredientsItem e "
-			+ "WHERE e.restaurant.id = :restaurantId "
-			+ "AND lower(e.name) = lower(:name)"
-			+ "AND e.category.name = :categoryName")
-	public IngredientsItem findByRestaurantIdAndNameIngoreCase(
-			@Param("restaurantId") Long restaurantId, 
-			@Param("name") String name,
-			@Param("categoryName") String categoryName);
+
+    List<IngredientsItem> findByRestaurantId(Long id);
+
+    @Query("SELECT e FROM IngredientsItem e "
+            + "WHERE e.restaurant.id = :restaurantId "
+            + "AND lower(e.name) = lower(:name)"
+            + "AND e.category.name = :categoryName")
+    IngredientsItem findByRestaurantIdAndNameIngoreCase(
+            @Param("restaurantId") Long restaurantId,
+            @Param("name") String name,
+            @Param("categoryName") String categoryName);
 }

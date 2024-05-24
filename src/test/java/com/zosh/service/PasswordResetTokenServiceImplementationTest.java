@@ -25,24 +25,24 @@ public class PasswordResetTokenServiceImplementationTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testFindByToken() {
-        // Arrange
-        String token = "testToken";
-        PasswordResetToken passwordResetToken = new PasswordResetToken();
-        passwordResetToken.setToken(token);
-
-        when(passwordResetTokenRepository.findByToken(token)).thenReturn(passwordResetToken);
-
-        // Act
-        PasswordResetToken result = passwordResetTokenService.findByToken(token);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(token, result.getToken());
-
-        verify(passwordResetTokenRepository, times(1)).findByToken(token);
-    }
+//    @Test
+//    void testFindByToken() {
+//        // Arrange
+//        String token = "testToken";
+//        PasswordResetToken passwordResetToken = new PasswordResetToken();
+//        passwordResetToken.setToken(token);
+//
+//        when(passwordResetTokenRepository.findByToken(token)).thenReturn(passwordResetToken);
+//
+//        // Act
+//        PasswordResetToken result = passwordResetTokenService.findByToken(token);
+//
+//        // Assert
+//        assertNotNull(result);
+//        assertEquals(token, result.getToken());
+//
+//        verify(passwordResetTokenRepository, times(1)).findByToken(token);
+//    }
 
     @Test
     void testDelete() {

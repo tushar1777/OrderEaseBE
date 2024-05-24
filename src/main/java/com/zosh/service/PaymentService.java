@@ -5,7 +5,7 @@ import com.zosh.model.Order;
 import com.zosh.model.PaymentResponse;
 
 public interface PaymentService {
-	
-	public PaymentResponse generatePaymentLink(Order order) throws StripeException;
+
+    PaymentResponse generatePaymentLink(Order order) throws StripeException;
 
 }

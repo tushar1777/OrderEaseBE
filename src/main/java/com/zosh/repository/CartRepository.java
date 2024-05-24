@@ -1,12 +1,11 @@
 package com.zosh.repository;
 
-import java.util.Optional;
-
+import com.zosh.model.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.zosh.model.Cart;
+import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-	 Optional<Cart> findByCustomer_Id(Long userId);
+    Optional<Cart> findByCustomer_Id(Long userId);
 }
