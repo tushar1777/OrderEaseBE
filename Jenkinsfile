@@ -6,8 +6,6 @@ pipeline {
         DB_PASSWORD = credentials('DB_PASSWORD')
         SONARQUBE_URL = 'http://54.197.189.182:8090/'
         SONARQUBE_SCANNER = 'sq1'
-        // SONARQUBE_CREDENTIALS = 'jenkins-sonar'
-       SONARQUBE_CREDENTIALS = 'zosh-food-02'
     }
     
   stages {
@@ -28,9 +26,8 @@ pipeline {
             scannerHome = tool 'SonarQubeScanner'
         }
         steps {
-            withSonarQubeEnv('sq1') { // This should match the SonarQube installation name in Jenkins
-                // sh 'mvn clean verify sonar:sonar'
-                sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=zosh-food-02 -Dsonar.projectName='zosh-food-02'"
+            withSonarQubeEnv('sq1') {
+                sh 'mvn clean verify sonar:sonar'
             }
         }
     }
