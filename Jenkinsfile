@@ -6,7 +6,8 @@ pipeline {
         DB_PASSWORD = credentials('DB_PASSWORD')
         SONARQUBE_URL = 'http://54.197.189.182:8090/'
         SONARQUBE_SCANNER = 'sq1'
-        SONARQUBE_CREDENTIALS = 'jenkins-sonar'
+        // SONARQUBE_CREDENTIALS = 'jenkins-sonar'
+       SONARQUBE_CREDENTIALS = 'zosh-food-02'
     }
     
   stages {
