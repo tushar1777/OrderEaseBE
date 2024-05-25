@@ -28,7 +28,8 @@ pipeline {
         }
         steps {
             withSonarQubeEnv('sq1') { // This should match the SonarQube installation name in Jenkins
-                sh 'mvn clean verify sonar:sonar'
+                // sh 'mvn clean verify sonar:sonar'
+                sh "${mvn}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=zosh-food-02 -Dsonar.projectName='zosh-food-02'"
             }
         }
     }
