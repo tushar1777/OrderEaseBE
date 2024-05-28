@@ -46,14 +46,7 @@ public class AppConfig {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowedOrigins(Arrays.asList(
-                        "http://localhost:3000",
-                        "https://zosh-food.vercel.app",
-                        "http://localhost:4200",
-                        "https://orderease-0q5o.onrender.com",
-                        "http://54.197.189.182:5000",
-                        "http://54.197.189.182:80"
-                ));
+                cfg.setAllowedOrigins(Collections.singletonList("*")); // Allow from anywhere
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowCredentials(true);
                 cfg.setAllowedHeaders(Collections.singletonList("*"));
