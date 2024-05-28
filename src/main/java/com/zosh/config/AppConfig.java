@@ -32,35 +32,35 @@ public class AppConfig {
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
-
+                .csrf(csrf -> csrf.disable());
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+//
 
         return http.build();
 
     }
 
     // CORS Configuration
-    private CorsConfigurationSource corsConfigurationSource() {
-        return new CorsConfigurationSource() {
-            @Override
-            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowedOrigins(Arrays.asList(
-                        "http://localhost:3000",
-                        "https://zosh-food.vercel.app",
-                        "http://localhost:4200",
-                        "https://orderease-0q5o.onrender.com"
-                ));
-                cfg.setAllowedMethods(Collections.singletonList("*"));
-                cfg.setAllowCredentials(true);
-                cfg.setAllowedHeaders(Collections.singletonList("*"));
-                cfg.setExposedHeaders(List.of("Authorization"));
-                cfg.setMaxAge(3600L);
-                return cfg;
-            }
-        };
-    }
+//    private CorsConfigurationSource corsConfigurationSource() {
+//        return new CorsConfigurationSource() {
+//            @Override
+//            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+//                CorsConfiguration cfg = new CorsConfiguration();
+//                cfg.setAllowedOrigins(Arrays.asList(
+//                        "http://localhost:3000",
+//                        "https://zosh-food.vercel.app",
+//                        "http://localhost:4200",
+//                        "https://orderease-0q5o.onrender.com"
+//                ));
+//                cfg.setAllowedMethods(Collections.singletonList("*"));
+//                cfg.setAllowCredentials(true);
+//                cfg.setAllowedHeaders(Collections.singletonList("*"));
+//                cfg.setExposedHeaders(List.of("Authorization"));
+//                cfg.setMaxAge(3600L);
+//                return cfg;
+//            }
+//        };
+//    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
