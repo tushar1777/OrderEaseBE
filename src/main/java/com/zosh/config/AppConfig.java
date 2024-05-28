@@ -50,7 +50,9 @@ public class AppConfig {
                         "http://localhost:3000",
                         "https://zosh-food.vercel.app",
                         "http://localhost:4200",
-                        "https://orderease-0q5o.onrender.com"
+                        "https://orderease-0q5o.onrender.com",
+                        "http://54.197.189.182:5000",
+                        "http://54.197.189.182:80"
                 ));
                 cfg.setAllowedMethods(Collections.singletonList("*"));
                 cfg.setAllowCredentials(true);
