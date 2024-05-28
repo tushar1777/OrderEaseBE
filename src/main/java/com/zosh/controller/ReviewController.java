@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class ReviewController {
     @Autowired
     private ReviewSerive reviewService;

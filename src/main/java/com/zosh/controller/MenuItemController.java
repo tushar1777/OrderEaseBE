@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/food")
+@CrossOrigin
 public class MenuItemController {
     @Autowired
     private FoodService menuItemService;
