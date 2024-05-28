@@ -32,8 +32,8 @@ public class AppConfig {
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+                .csrf(csrf -> csrf.disable());
+                // .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
 
         return http.build();
@@ -41,21 +41,21 @@ public class AppConfig {
     }
 
     // CORS Configuration
-    private CorsConfigurationSource corsConfigurationSource() {
-        return new CorsConfigurationSource() {
-            @Override
-            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowedOrigins(Collections.singletonList("*")); // Allow from anywhere
-                cfg.setAllowedMethods(Collections.singletonList("*"));
-                cfg.setAllowCredentials(true);
-                cfg.setAllowedHeaders(Collections.singletonList("*"));
-                cfg.setExposedHeaders(List.of("Authorization"));
-                cfg.setMaxAge(3600L);
-                return cfg;
-            }
-        };
-    }
+    // private CorsConfigurationSource corsConfigurationSource() {
+    //     return new CorsConfigurationSource() {
+    //         @Override
+    //         public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+    //             CorsConfiguration cfg = new CorsConfiguration();
+    //             cfg.setAllowedOrigins(Collections.singletonList("*")); // Allow from anywhere
+    //             cfg.setAllowedMethods(Collections.singletonList("*"));
+    //             cfg.setAllowCredentials(true);
+    //             cfg.setAllowedHeaders(Collections.singletonList("*"));
+    //             cfg.setExposedHeaders(List.of("Authorization"));
+    //             cfg.setMaxAge(3600L);
+    //             return cfg;
+    //         }
+    //     };
+    // }
 
     @Bean
     PasswordEncoder passwordEncoder() {
