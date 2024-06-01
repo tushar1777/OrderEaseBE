@@ -1,5 +1,14 @@
 # OrderEase
+### Tech Used: 
+- ReactJs: Frontend
+- Backend: SpringBoot
+- Deployed: AWS
+- DB: AWS RDS (My SQL)
+- CI/CD: Jenkins
+- Coverage: SonarQube
+- Automation: Katalon Studio
 
+# Use Cases:
 1. **User:**
     - ID (Auto-generated)
     - Username
@@ -54,35 +63,29 @@
     - Payment Status
     - Total Amount
     - Payment Timestamp
-7. **~~Delivery Executive:~~**
-    - ~~ID (Auto-generated)~~
-    - ~~Name~~
-    - ~~Contact Information~~
-    - ~~Availability Status~~
-    - ~~Current Location (Latitude and Longitude)~~
-8. **Review/Rating:**
+7. **Review/Rating:**
     - ID (Auto-generated)
     - Customer (reference to User entity)
     - Restaurant (reference to Restaurant entity)
     - Rating
     - Review Text
     - Timestamp
-9. **Promotion/Coupon:**
+8. **Promotion/Coupon:**
     - ID (Auto-generated)
     - Code
     - Discount Amount
     - Validity Period
     - Terms and Conditions
-10. **Notification:**
+9. **Notification:**
     - ID (Auto-generated)
     - Recipient (reference to User, Restaurant, or Delivery Executive entity)
     - Message
     - Timestamp
     - Read Status
-11. **Category:**
+10. **Category:**
     - ID (Auto-generated)
     - Name
-12. **Address:**
+11. **Address:**
     - ID (Auto-generated)
     - Street Address
     - City
@@ -90,14 +93,8 @@
     - Postal Code
     - Country
     
-13. contact information
+12. contact information
     - email
     - mobile
     - twitter
     - instagram
-
-**service**
-
-**service-implementation**
-
-**controller**
